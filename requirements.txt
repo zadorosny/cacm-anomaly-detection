@@ -1,0 +1,29 @@
+# Production dependencies (pinned).
+# Generated from pyproject.toml — use Poetry as the source of truth.
+# Install with: pip install -r requirements.txt
+#
+# Requires Python >=3.11,<3.13 and Java 17 (PySpark).
+
+# Core processing
+pyspark==3.5.1
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==16.0.0
+
+# Statistics
+scipy==1.13.0
+statsmodels==0.14.2
+
+# Machine learning
+scikit-learn==1.5.0
+torch==2.3.0
+mlflow==2.13.0
+
+# Data generation
+faker==25.0.0
+
+# Configuration / logging
+pydantic==2.7.1
+pydantic-settings==2.2.1
+structlog==24.1.0
+click==8.1.7
