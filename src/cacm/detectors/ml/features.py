@@ -35,15 +35,15 @@ def build_features(df_silver: pd.DataFrame) -> pd.DataFrame:
     # Janelas por associado
     df = df.sort_values(["associado_id", "dt_transacao"]).reset_index(drop=True)
     df["freq_7d"] = df.groupby("associado_id")["dt_transacao"].transform(
-        lambda s: s.rolling("7d", on=s).count() if False else _rolling_count(s, "7d")
+        lambda s: s.rolling("7D", on=s).count() if False else _rolling_count(s, "7D")
     )
     df["freq_30d"] = df.groupby("associado_id")["dt_transacao"].transform(
-        lambda s: _rolling_count(s, "30d")
+        lambda s: _rolling_count(s, "30D")
     )
 
-    # Destinos únicos por janela 30d (aproximação leve)
+    # Destinos únicos acumulados por associado (aproximação leve da janela 30d)
     df["destinos_unicos_30d"] = df.groupby("associado_id")["conta_destino"].transform(
-        lambda s: s.expanding().apply(lambda x: x.nunique(), raw=False)
+        _running_unique_count
     )
 
     # Idade da conta
@@ -67,7 +67,18 @@ def build_features(df_silver: pd.DataFrame) -> pd.DataFrame:
     return df[["transacao_id", *FEATURE_COLS]].fillna(0.0)
 
 
-def _rolling_count(series: pd.Series, window: str) -> pd.Series:
+def _rolling_count(series: pd.Series, window: str) -> np.ndarray:
     """Conta eventos dentro de janela temporal."""
     s = pd.Series(1, index=pd.to_datetime(series.to_numpy()))
     return s.rolling(window).count().to_numpy()
+
+
+def _running_unique_count(series: pd.Series) -> np.ndarray:
+    """Cumulative count of distinct values up to each position."""
+    seen: set = set()
+    out = np.empty(len(series), dtype=np.int64)
+    for i, v in enumerate(series.to_numpy()):
+        if v is not None and not (isinstance(v, float) and np.isnan(v)):
+            seen.add(v)
+        out[i] = len(seen)
+    return out
