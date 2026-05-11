@@ -11,6 +11,7 @@ nav:
   - Data Model: data-model.md
   - Detectors: detectors.md
   - Operations: operations.md
+  - Lessons learned: lessons-learned.md
 markdown_extensions:
   - admonition
   - pymdownx.details
