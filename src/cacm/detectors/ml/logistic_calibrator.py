@@ -39,13 +39,17 @@ def train_logistic_calibrator(df_alertas_rotulados: pd.DataFrame) -> Path:
     """Treina logística L2 sobre alertas com `status` ∈ {CONFIRMADO, FALSO_POSITIVO}."""
     df = df_alertas_rotulados[df_alertas_rotulados["status"].isin(["CONFIRMADO", "FALSO_POSITIVO"])]
     if len(df) < 50:
-        raise ValueError("Histórico insuficiente para treinar calibrador (mín. 50 alertas rotulados).")
+        raise ValueError(
+            "Histórico insuficiente para treinar calibrador (mín. 50 alertas rotulados)."
+        )
     y = (df["status"] == "CONFIRMADO").astype(int).to_numpy()
     X = df[DETECTOR_COLS].fillna(0.0).to_numpy()
 
     scaler = StandardScaler()
     Xs = scaler.fit_transform(X)
-    X_train, X_val, y_train, y_val = train_test_split(Xs, y, test_size=0.25, random_state=42, stratify=y)
+    X_train, X_val, y_train, y_val = train_test_split(
+        Xs, y, test_size=0.25, random_state=42, stratify=y
+    )
 
     mlflow.set_experiment("cacm/logistic-calibrator")
     with mlflow.start_run() as run:

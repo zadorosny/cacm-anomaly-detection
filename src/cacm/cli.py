@@ -47,8 +47,8 @@ def rodar_pipeline() -> None:
 @main.command()
 def treinar_modelos() -> None:
     """Treina Isolation Forest e Autoencoder sobre silver."""
-    from cacm.detectors.ml.isolation_forest import train_isolation_forest
     from cacm.detectors.ml.autoencoder import train_autoencoder
+    from cacm.detectors.ml.isolation_forest import train_isolation_forest
 
     log.info("training.start")
     train_isolation_forest()

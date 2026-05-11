@@ -50,7 +50,8 @@ def detectar_fracionamento(
             agg["alerta"] = True
             agg["score"] = (agg["soma"] / lim).clip(upper=2.0) / 2.0  # normaliza 0-1
             agg["motivo"] = agg.apply(
-                lambda r: f"Fracionamento: {int(r.qtd_tx)} tx somando R$ {r.soma:,.2f} em {w}h", axis=1
+                lambda r: f"Fracionamento: {int(r.qtd_tx)} tx somando R$ {r.soma:,.2f} em {w}h",
+                axis=1,
             )
             out.append(agg)
     return pd.concat(out, ignore_index=True) if out else pd.DataFrame()

@@ -33,11 +33,11 @@ CANAL_PROBS = [0.55, 0.20, 0.10, 0.10, 0.05]
 
 # Lognormal params (mu, sigma) por tipo — produz BRL realistas
 VALOR_PARAMS = {
-    "PIX_OUT": (5.0, 1.2),     # ~R$ 150 mediana
+    "PIX_OUT": (5.0, 1.2),  # ~R$ 150 mediana
     "PIX_IN": (5.2, 1.2),
-    "TED": (7.5, 1.3),         # ~R$ 1800 mediana
+    "TED": (7.5, 1.3),  # ~R$ 1800 mediana
     "DOC": (7.0, 1.2),
-    "SAQUE": (5.6, 0.9),       # ~R$ 270
+    "SAQUE": (5.6, 0.9),  # ~R$ 270
     "DEPOSITO": (5.8, 1.0),
 }
 
@@ -46,7 +46,9 @@ def _amostrar_hora(rng: np.random.Generator) -> time:
     # Mistura: 70% horário comercial, 25% extra-comercial diurno, 5% madrugada
     bucket = rng.choice([0, 1, 2], p=[0.70, 0.25, 0.05])
     if bucket == 0:
-        h = int(rng.choice([10, 11, 12, 14, 15, 16, 17], p=[0.12, 0.16, 0.14, 0.14, 0.16, 0.16, 0.12]))
+        h = int(
+            rng.choice([10, 11, 12, 14, 15, 16, 17], p=[0.12, 0.16, 0.14, 0.14, 0.16, 0.16, 0.12])
+        )
     elif bucket == 1:
         h = int(rng.choice([7, 8, 9, 13, 18, 19, 20, 21]))
     else:

@@ -38,11 +38,18 @@ def enrich_transactions(spark: SparkSession, tx: DataFrame) -> DataFrame:
         tx.withColumn("dt", F.to_date("dt_transacao"))
         .withColumn("hora", F.hour("dt_transacao"))
         .withColumn("dia_semana", F.dayofweek("dt_transacao") - 1)  # 0=segunda
-        .withColumn("primeiro_digito", F.substring(F.regexp_replace(F.col("valor").cast("string"), "[^1-9]", ""), 1, 1).cast("int"))
+        .withColumn(
+            "primeiro_digito",
+            F.substring(F.regexp_replace(F.col("valor").cast("string"), "[^1-9]", ""), 1, 1).cast(
+                "int"
+            ),
+        )
     )
-    tx = tx.join(dim_associado, on="associado_id", how="left") \
-           .join(dim_agencia, on="agencia_id", how="left") \
-           .join(dim_calendario, on="dt", how="left")
+    tx = (
+        tx.join(dim_associado, on="associado_id", how="left")
+        .join(dim_agencia, on="agencia_id", how="left")
+        .join(dim_calendario, on="dt", how="left")
+    )
 
     # Flags determinísticas de auditoria
     tx = (
@@ -67,10 +74,6 @@ def build_silver(output_name: str = "transacoes_silver") -> str:
     enriched = enrich_transactions(spark, clean)
 
     out = settings.silver_path / output_name
-    (
-        enriched.write.mode("overwrite")
-        .partitionBy("dt", "agencia_id")
-        .parquet(str(out))
-    )
+    (enriched.write.mode("overwrite").partitionBy("dt", "agencia_id").parquet(str(out)))
     log.info("silver.persisted", path=str(out))
     return str(out)

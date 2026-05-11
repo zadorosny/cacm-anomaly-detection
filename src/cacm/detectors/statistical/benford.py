@@ -33,13 +33,15 @@ def primeiro_digito(valores: np.ndarray) -> np.ndarray:
     v = np.abs(np.asarray(valores, dtype=float))
     v = v[v > 0]
     expoente = np.floor(np.log10(v)).astype(int)
-    return (v / (10.0 ** expoente)).astype(int)
+    return (v / (10.0**expoente)).astype(int)
 
 
 def benford_test(valores: np.ndarray) -> BenfordResult:
     digs = primeiro_digito(valores)
     if len(digs) < 30:
-        return BenfordResult(np.zeros(9, dtype=int), np.zeros(9), float("nan"), float("nan"), float("nan"))
+        return BenfordResult(
+            np.zeros(9, dtype=int), np.zeros(9), float("nan"), float("nan"), float("nan")
+        )
     contagem = np.array([(digs == d).sum() for d in range(1, 10)], dtype=int)
     freq = contagem / contagem.sum()
     esperado = BENFORD_PROBS * contagem.sum()
@@ -57,7 +59,9 @@ def benford_por_segmento(df: pd.DataFrame, key: str = "tipo", min_n: int = 100) 
         res = benford_test(g["valor"].to_numpy())
         alerta = (res.mad > 0.015) or (res.p_value < 0.01)
         # MAD bins de Nigrini: <0.006 conformidade alta; 0.006-0.012 aceitável; >0.015 não conforme
-        score = float(np.clip((res.mad - 0.006) / 0.020, 0.0, 1.0)) if not np.isnan(res.mad) else 0.0
+        score = (
+            float(np.clip((res.mad - 0.006) / 0.020, 0.0, 1.0)) if not np.isnan(res.mad) else 0.0
+        )
         rows.append(
             {
                 "chave": k,
@@ -69,7 +73,9 @@ def benford_por_segmento(df: pd.DataFrame, key: str = "tipo", min_n: int = 100) 
                 "mad": res.mad,
                 "score": score,
                 "motivo": (
-                    f"Benford: MAD={res.mad:.4f}, p={res.p_value:.4f} ({key}={k})" if alerta else None
+                    f"Benford: MAD={res.mad:.4f}, p={res.p_value:.4f} ({key}={k})"
+                    if alerta
+                    else None
                 ),
             }
         )

@@ -57,11 +57,7 @@ def start_streaming_ingestion(
     checkpoint = checkpoint_path or (settings.checkpoints_path / "bronze_streaming")
     landing.mkdir(parents=True, exist_ok=True)
 
-    df = (
-        spark.readStream.schema(SCHEMA)
-        .option("maxFilesPerTrigger", 10)
-        .json(str(landing))
-    )
+    df = spark.readStream.schema(SCHEMA).option("maxFilesPerTrigger", 10).json(str(landing))
     return (
         df.writeStream.format("parquet")
         .option("checkpointLocation", str(checkpoint))

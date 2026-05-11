@@ -55,7 +55,11 @@ def train_isolation_forest(
     mlflow.set_experiment("cacm/isolation-forest")
     with mlflow.start_run() as run:
         mlflow.log_params(
-            {"contamination": contamination, "n_estimators": n_estimators, "random_state": random_state}
+            {
+                "contamination": contamination,
+                "n_estimators": n_estimators,
+                "random_state": random_state,
+            }
         )
         model = IsolationForest(
             n_estimators=n_estimators,

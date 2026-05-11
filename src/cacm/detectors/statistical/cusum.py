@@ -50,7 +50,9 @@ def cusum_por_agencia(df_ag_dia: pd.DataFrame) -> pd.DataFrame:
     out = []
     for ag, g in df_ag_dia.sort_values("dt").groupby("agencia_id"):
         res = cusum(g["qtd_tx"].to_numpy())
-        score = np.clip(np.abs(res.s_high - res.s_low) / max(res.sigma * settings.cusum_h, 1.0), 0.0, 1.0)
+        score = np.clip(
+            np.abs(res.s_high - res.s_low) / max(res.sigma * settings.cusum_h, 1.0), 0.0, 1.0
+        )
         out.append(
             pd.DataFrame(
                 {

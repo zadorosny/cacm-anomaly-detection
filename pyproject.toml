@@ -48,7 +48,12 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
-ignore = ["E501"]
+# N803/N806/N812/N815: scientific Python uses `X`, `X_train`, `L`, `F` (pyspark.sql.functions) — idiomatic.
+# RUF002: docstrings contain Portuguese characters and math symbols (×, –, λ) which are intentional.
+ignore = ["E501", "N803", "N806", "N812", "N815", "RUF002"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["N802", "N803", "N806"]
 
 [tool.mypy]
 python_version = "3.11"

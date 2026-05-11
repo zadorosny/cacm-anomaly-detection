@@ -13,8 +13,10 @@ def three_sigma_concentracao_horaria(df: pd.DataFrame) -> pd.DataFrame:
 
     `df` deve conter: agencia_id, dt_transacao, transacao_id (ou linha=1 tx).
     """
-    df = df.assign(hora=pd.to_datetime(df["dt_transacao"]).dt.hour,
-                   dt=pd.to_datetime(df["dt_transacao"]).dt.date)
+    df = df.assign(
+        hora=pd.to_datetime(df["dt_transacao"]).dt.hour,
+        dt=pd.to_datetime(df["dt_transacao"]).dt.date,
+    )
     pivot = df.groupby(["agencia_id", "dt", "hora"]).size().reset_index(name="qtd")
 
     k = settings.three_sigma_k

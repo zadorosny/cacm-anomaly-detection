@@ -34,15 +34,16 @@ def build_features(df_silver: pd.DataFrame) -> pd.DataFrame:
 
     # Janelas por associado
     df = df.sort_values(["associado_id", "dt_transacao"]).reset_index(drop=True)
-    df["freq_7d"] = (
-        df.groupby("associado_id")["dt_transacao"]
-        .transform(lambda s: s.rolling("7d", on=s).count() if False else _rolling_count(s, "7d"))
+    df["freq_7d"] = df.groupby("associado_id")["dt_transacao"].transform(
+        lambda s: s.rolling("7d", on=s).count() if False else _rolling_count(s, "7d")
     )
-    df["freq_30d"] = df.groupby("associado_id")["dt_transacao"].transform(lambda s: _rolling_count(s, "30d"))
+    df["freq_30d"] = df.groupby("associado_id")["dt_transacao"].transform(
+        lambda s: _rolling_count(s, "30d")
+    )
 
     # Destinos únicos por janela 30d (aproximação leve)
-    df["destinos_unicos_30d"] = (
-        df.groupby("associado_id")["conta_destino"].transform(lambda s: s.expanding().apply(lambda x: x.nunique(), raw=False))
+    df["destinos_unicos_30d"] = df.groupby("associado_id")["conta_destino"].transform(
+        lambda s: s.expanding().apply(lambda x: x.nunique(), raw=False)
     )
 
     # Idade da conta

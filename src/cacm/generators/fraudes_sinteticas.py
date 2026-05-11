@@ -23,7 +23,7 @@ from cacm.config import settings
 
 def injetar_fraudes(
     df: pd.DataFrame,
-    dims,  # noqa: ANN001 — dataclass Dimensoes (evita import circular)
+    dims,
     rng: np.random.Generator,
     fracao: float = 0.005,
 ) -> pd.DataFrame:
@@ -52,13 +52,19 @@ def _empty_like(df: pd.DataFrame) -> pd.DataFrame:
 def _smurfing(df: pd.DataFrame, dims, rng: np.random.Generator, n_assoc: int) -> pd.DataFrame:
     """Cria fracionamento PIX: N transações <R$10k em 24h somando >R$10k."""
     limite = settings.structuring_limit_brl
-    assoc_pool = dims.associados["associado_id"].sample(n=n_assoc, random_state=int(rng.integers(0, 10**6))).to_numpy()
+    assoc_pool = (
+        dims.associados["associado_id"]
+        .sample(n=n_assoc, random_state=int(rng.integers(0, 10**6)))
+        .to_numpy()
+    )
     rows = []
     template = df.iloc[0].to_dict()
     for assoc in assoc_pool:
         n_split = int(rng.integers(3, 8))
-        base_ts = pd.Timestamp(df["dt_transacao"].sample(1).iloc[0]).normalize() + pd.Timedelta(hours=int(rng.integers(8, 20)))
-        for j in range(n_split):
+        base_ts = pd.Timestamp(df["dt_transacao"].sample(1).iloc[0]).normalize() + pd.Timedelta(
+            hours=int(rng.integers(8, 20))
+        )
+        for _ in range(n_split):
             valor = float(rng.uniform(limite * 0.55, limite * 0.95))
             row = template.copy()
             row.update(
@@ -85,14 +91,22 @@ def _smurfing(df: pd.DataFrame, dims, rng: np.random.Generator, n_assoc: int) ->
 
 def _burst_noturno(df: pd.DataFrame, dims, rng: np.random.Generator, n_ops: int) -> pd.DataFrame:
     """Operador com rajada de transações em madrugada."""
-    operadores = dims.operadores["operador_id"].sample(n=n_ops, random_state=int(rng.integers(0, 10**6))).to_numpy()
+    operadores = (
+        dims.operadores["operador_id"]
+        .sample(n=n_ops, random_state=int(rng.integers(0, 10**6)))
+        .to_numpy()
+    )
     rows = []
     template = df.iloc[0].to_dict()
     for op in operadores:
-        ag_lotacao = dims.operadores.loc[dims.operadores["operador_id"] == op, "agencia_lotacao"].iloc[0]
-        base_ts = pd.Timestamp(df["dt_transacao"].sample(1).iloc[0]).normalize() + pd.Timedelta(hours=int(rng.integers(2, 5)))
+        ag_lotacao = dims.operadores.loc[
+            dims.operadores["operador_id"] == op, "agencia_lotacao"
+        ].iloc[0]
+        base_ts = pd.Timestamp(df["dt_transacao"].sample(1).iloc[0]).normalize() + pd.Timedelta(
+            hours=int(rng.integers(2, 5))
+        )
         n_burst = int(rng.integers(8, 20))
-        for j in range(n_burst):
+        for _ in range(n_burst):
             valor = float(rng.lognormal(7.0, 1.0))
             assoc = rng.choice(dims.associados["associado_id"])
             row = template.copy()

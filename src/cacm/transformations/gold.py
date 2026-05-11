@@ -23,15 +23,12 @@ def build_gold() -> dict[str, str]:
     paths: dict[str, str] = {}
 
     # 1. Fato por agência/dia
-    f_ag_dia = (
-        silver.groupBy("agencia_id", "dt")
-        .agg(
-            F.count("*").alias("qtd_tx"),
-            F.sum("valor").alias("valor_total"),
-            F.avg("valor").alias("valor_medio"),
-            F.sum(F.when(F.col("flag_fora_horario"), 1).otherwise(0)).alias("qtd_fora_horario"),
-            F.sum(F.when(F.col("flag_valor_alto"), 1).otherwise(0)).alias("qtd_valor_alto"),
-        )
+    f_ag_dia = silver.groupBy("agencia_id", "dt").agg(
+        F.count("*").alias("qtd_tx"),
+        F.sum("valor").alias("valor_total"),
+        F.avg("valor").alias("valor_medio"),
+        F.sum(F.when(F.col("flag_fora_horario"), 1).otherwise(0)).alias("qtd_fora_horario"),
+        F.sum(F.when(F.col("flag_valor_alto"), 1).otherwise(0)).alias("qtd_valor_alto"),
     )
     p = settings.gold_path / "fato_agencia_dia"
     f_ag_dia.write.mode("overwrite").parquet(str(p))

@@ -29,15 +29,18 @@ class DenseAutoencoder(nn.Module):
     def __init__(self, in_dim: int) -> None:
         super().__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(in_dim, 16), nn.ReLU(),
-            nn.Linear(16, 8), nn.ReLU(),
+            nn.Linear(in_dim, 16),
+            nn.ReLU(),
+            nn.Linear(16, 8),
+            nn.ReLU(),
         )
         self.decoder = nn.Sequential(
-            nn.Linear(8, 16), nn.ReLU(),
+            nn.Linear(8, 16),
+            nn.ReLU(),
             nn.Linear(16, in_dim),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # noqa: D401
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.decoder(self.encoder(x))
 
 
@@ -65,8 +68,15 @@ def _embedding_mensal(df_silver: pd.DataFrame) -> pd.DataFrame:
 
 
 FEATURES = [
-    "qtd_tx", "valor_total", "valor_medio", "valor_max", "valor_std",
-    "hora_media", "destinos_unicos", "canais", "pct_madrugada",
+    "qtd_tx",
+    "valor_total",
+    "valor_medio",
+    "valor_max",
+    "valor_std",
+    "hora_media",
+    "destinos_unicos",
+    "canais",
+    "pct_madrugada",
 ]
 
 
@@ -80,6 +90,7 @@ def train_autoencoder(
     """Treina autoencoder e persiste pesos + scaler."""
     if df_silver is None:
         from cacm.detectors.ml.isolation_forest import _read_silver_pandas
+
         df_silver = _read_silver_pandas()
 
     torch.manual_seed(seed)
@@ -98,11 +109,15 @@ def train_autoencoder(
     model = DenseAutoencoder(in_dim=X.shape[1])
     optim = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = nn.MSELoss()
-    loader = DataLoader(TensorDataset(torch.from_numpy(X_train)), batch_size=batch_size, shuffle=True)
+    loader = DataLoader(
+        TensorDataset(torch.from_numpy(X_train)), batch_size=batch_size, shuffle=True
+    )
 
     mlflow.set_experiment("cacm/autoencoder")
     with mlflow.start_run() as run:
-        mlflow.log_params({"epochs": epochs, "lr": lr, "batch_size": batch_size, "n_features": X.shape[1]})
+        mlflow.log_params(
+            {"epochs": epochs, "lr": lr, "batch_size": batch_size, "n_features": X.shape[1]}
+        )
         for epoch in range(epochs):
             model.train()
             running = 0.0
@@ -130,11 +145,17 @@ def train_autoencoder(
         MODEL_DIR.mkdir(parents=True, exist_ok=True)
         artifact = MODEL_DIR / "autoencoder.pt"
         torch.save(
-            {"state_dict": model.state_dict(), "in_dim": X.shape[1], "threshold": threshold, "features": FEATURES},
+            {
+                "state_dict": model.state_dict(),
+                "in_dim": X.shape[1],
+                "threshold": threshold,
+                "features": FEATURES,
+            },
             artifact,
         )
         # scaler separado (joblib)
         import joblib
+
         joblib.dump(scaler, MODEL_DIR / "autoencoder_scaler.joblib")
         mlflow.log_artifact(str(artifact))
         log.info("ae.trained", run_id=run.info.run_id, threshold=threshold)

@@ -45,7 +45,9 @@ def severidade_por_score(score: float) -> str | None:
     return "CRITICA"
 
 
-def combinar_scores(*detector_outputs: pd.DataFrame, weights: dict[str, float] | None = None) -> pd.DataFrame:
+def combinar_scores(
+    *detector_outputs: pd.DataFrame, weights: dict[str, float] | None = None
+) -> pd.DataFrame:
     """Junta todos os outputs de detectores por transacao_id e calcula score final.
 
     Cada DataFrame deve ter: `regra_id` e identificador da entidade (`transacao_id`
@@ -60,7 +62,8 @@ def combinar_scores(*detector_outputs: pd.DataFrame, weights: dict[str, float] |
             continue
         d = df.copy()
         entity = (
-            d["transacao_id"] if "transacao_id" in d.columns
+            d["transacao_id"]
+            if "transacao_id" in d.columns
             else d.get("associado_id", d.get("agencia_id", pd.Series(["-"] * len(d))))
         )
         d = d.assign(entidade=entity.astype(str))
@@ -129,20 +132,28 @@ def run_scoring_pipeline() -> str:
         ewma_por_associado_pix(pix[["associado_id", "dt", "valor"]]),
         three_sigma_concentracao_horaria(silver[["agencia_id", "dt_transacao"]]),
         benford_por_segmento(silver[["tipo", "valor"]], key="tipo"),
-        detectar_fracionamento(silver[["associado_id", "dt_transacao", "tipo", "valor", "transacao_id"]]),
+        detectar_fracionamento(
+            silver[["associado_id", "dt_transacao", "tipo", "valor", "transacao_id"]]
+        ),
     ]
 
     # ML — só se modelos existirem
     models_dir = settings.data_root / "models"
     if (models_dir / "isolation_forest.joblib").exists():
         from cacm.detectors.ml.isolation_forest import score_isolation_forest
+
         outputs.append(score_isolation_forest(silver))
     if (models_dir / "autoencoder.pt").exists():
         from cacm.detectors.ml.autoencoder import score_autoencoder
+
         outputs.append(score_autoencoder(silver))
 
     agg = combinar_scores(*outputs)
     alertas = montar_alertas(agg)
-    log.info("alertas.gerados", n=len(alertas), distribuicao=alertas["severidade"].value_counts().to_dict())
+    log.info(
+        "alertas.gerados",
+        n=len(alertas),
+        distribuicao=alertas["severidade"].value_counts().to_dict(),
+    )
 
     return save_alertas(alertas)

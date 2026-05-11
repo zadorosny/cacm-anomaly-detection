@@ -14,10 +14,26 @@ from faker import Faker
 
 # Municípios fictícios de Goiás (subset realista)
 GO_MUNICIPIOS = [
-    "Goiânia", "Aparecida de Goiânia", "Anápolis", "Rio Verde", "Luziânia",
-    "Águas Lindas de Goiás", "Valparaíso de Goiás", "Trindade", "Formosa", "Novo Gama",
-    "Senador Canedo", "Itumbiara", "Catalão", "Jataí", "Planaltina",
-    "Caldas Novas", "Cidade Ocidental", "Goianésia", "Inhumas", "Mineiros",
+    "Goiânia",
+    "Aparecida de Goiânia",
+    "Anápolis",
+    "Rio Verde",
+    "Luziânia",
+    "Águas Lindas de Goiás",
+    "Valparaíso de Goiás",
+    "Trindade",
+    "Formosa",
+    "Novo Gama",
+    "Senador Canedo",
+    "Itumbiara",
+    "Catalão",
+    "Jataí",
+    "Planaltina",
+    "Caldas Novas",
+    "Cidade Ocidental",
+    "Goianésia",
+    "Inhumas",
+    "Mineiros",
 ]
 
 SEGMENTOS_ASSOCIADO = ["PF_VAREJO", "PF_PREMIUM", "PJ_MICRO", "PJ_PEQUENA", "PJ_MEDIA"]
@@ -97,17 +113,25 @@ def gerar_dim_calendario(dt_inicio: date, dt_fim: date) -> pd.DataFrame:
     df["dia_util"] = df["dia_semana"] < 5
     # Feriados nacionais aproximados (lista mínima — projeto de portfólio)
     feriados_fixos = {(1, 1), (4, 21), (5, 1), (9, 7), (10, 12), (11, 2), (11, 15), (12, 25)}
-    df["feriado"] = df.apply(lambda r: (r["mes"], pd.to_datetime(r["dt"]).day) in feriados_fixos, axis=1)
+    df["feriado"] = df.apply(
+        lambda r: (r["mes"], pd.to_datetime(r["dt"]).day) in feriados_fixos, axis=1
+    )
     df["dia_util"] = df["dia_util"] & ~df["feriado"]
     return df
 
 
 def gerar_dimensoes(
-    n_agencias: int, n_associados: int, n_operadores: int,
-    dt_inicio: date, dt_fim: date, seed: int = 42,
+    n_agencias: int,
+    n_associados: int,
+    n_operadores: int,
+    dt_inicio: date,
+    dt_fim: date,
+    seed: int = 42,
 ) -> Dimensoes:
     agencias = gerar_dim_agencias(n_agencias, seed)
     associados = gerar_dim_associados(n_associados, seed + 1)
     operadores = gerar_dim_operadores(n_operadores, agencias, seed + 2)
     calendario = gerar_dim_calendario(dt_inicio, dt_fim)
-    return Dimensoes(agencias=agencias, associados=associados, operadores=operadores, calendario=calendario)
+    return Dimensoes(
+        agencias=agencias, associados=associados, operadores=operadores, calendario=calendario
+    )

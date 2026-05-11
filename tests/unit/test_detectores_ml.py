@@ -20,7 +20,9 @@ def silver_fake():
             "associado_id": rng.choice([f"A{i}" for i in range(30)], size=n),
             "agencia_id": rng.choice([f"AG{i:02d}" for i in range(5)], size=n),
             "valor": rng.lognormal(5.0, 1.0, size=n).round(2),
-            "dt_transacao": [base + timedelta(minutes=int(x)) for x in rng.integers(0, 60 * 24 * 30, size=n)],
+            "dt_transacao": [
+                base + timedelta(minutes=int(x)) for x in rng.integers(0, 60 * 24 * 30, size=n)
+            ],
             "conta_destino": rng.choice([f"C{i}" for i in range(50)], size=n),
             "canal": rng.choice(["APP", "AGENCIA", "INTERNET_BANKING"], size=n),
             "geo_lat": rng.normal(-16.6, 0.5, size=n),
@@ -33,6 +35,7 @@ def silver_fake():
 
 def test_build_features_produces_all_columns(silver_fake):
     from cacm.detectors.ml.features import FEATURE_COLS, build_features
+
     feats = build_features(silver_fake)
     assert set(FEATURE_COLS).issubset(feats.columns)
     assert len(feats) == len(silver_fake)
@@ -42,6 +45,7 @@ def test_build_features_produces_all_columns(silver_fake):
 @pytest.mark.slow
 def test_autoencoder_train_smoke(silver_fake, tmp_path, monkeypatch):
     from cacm.detectors.ml import autoencoder
+
     monkeypatch.setattr(autoencoder, "MODEL_DIR", tmp_path)
     artifact = autoencoder.train_autoencoder(silver_fake, epochs=2, batch_size=16)
     assert artifact.exists()
