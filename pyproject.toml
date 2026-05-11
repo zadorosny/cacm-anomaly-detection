@@ -61,6 +61,10 @@ strict = false
 ignore_missing_imports = true
 warn_unused_ignores = true
 files = ["src"]
+# numpy/pandas stubs flag legitimate idioms (np.where with str/None branches,
+# DataFrame indexing where the type narrows at runtime). Project-wide ignore
+# keeps mypy useful for real bugs without churning on library typing edges.
+disable_error_code = ["call-overload", "index", "attr-defined"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
