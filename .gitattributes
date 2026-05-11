@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.pbix filter=lfs diff=lfs merge=lfs -text
+*.parquet filter=lfs diff=lfs merge=lfs -text
+*.pt      filter=lfs diff=lfs merge=lfs -text
+*.pth     filter=lfs diff=lfs merge=lfs -text
+*.pkl     filter=lfs diff=lfs merge=lfs -text
+*.joblib  filter=lfs diff=lfs merge=lfs -text
+
+*.py      text diff=python
+*.md      text
+*.yml     text
+*.yaml    text
+*.toml    text

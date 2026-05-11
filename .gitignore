@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.installed.cfg
+*.egg
+
+# Environments
+.venv/
+venv/
+.env
+.python-version
+
+# Poetry
+# poetry.lock is committed
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Type checking / linting
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Data lake (medallion) — gerado, não versionar
+data/bronze/
+data/silver/
+data/gold/
+data/checkpoints/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log

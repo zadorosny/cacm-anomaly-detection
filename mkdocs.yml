@@ -1,0 +1,18 @@
+site_name: CA/CM
+site_description: Continuous Auditing & Monitoring pipeline with anomaly detection
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: green
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Data Model: data-model.md
+  - Detectors: detectors.md
+  - Operations: operations.md
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables

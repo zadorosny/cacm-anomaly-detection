@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up Java (Spark)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Poetry
+        run: pipx install poetry==1.8.3
+
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock', '**/pyproject.toml') }}
+
+      - name: Install dependencies
+        run: poetry install --with dev --no-interaction
+
+      - name: Ruff (lint)
+        run: poetry run ruff check src tests
+
+      - name: Ruff (format check)
+        run: poetry run ruff format --check src tests
+
+      - name: Mypy
+        run: poetry run mypy src
+
+      - name: Pytest (unit)
+        run: poetry run pytest -m "not integration"
